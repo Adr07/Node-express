@@ -2,20 +2,43 @@ const express = require('express');
 const app = express();
 const port = 3000;
 
+const {getdata} = require("./router/shop-elements");
+
+//conexion a base de datos mysql
+const mysql = require('mysql');
+const conexion = mysql.createConnection({
+    host: 'localhost',
+    database: 'shop',
+    user: 'root',
+    password: '1234'
+});
+
+app.get('/elem',(req,res)=>{
+    getdata(conexion,resul =>{
+        res.send(resul)
+    });
+})
+
+conexion.connect(function(error){
+    if(error){throw error;}
+    else{console.log("Conxion exitosa")}
+});
+
+
+
 // motor de plantillas
 app.set("view engine", "ejs");      
 app.set("views", __dirname + "/views");
 
-
+//establece el uso de la ruta public para css y js
 app.use(express.static(__dirname +"/public"))
-app.get('/', (req , res) => {
-    // console.log dirname
-    res.render("index",{titulo : "titulo dinamico"});
-})
 
-app.get('/servicios',(req,res)=>{
-    // console.log dirname
-    res.render("servicios",{tituloservicios : "titulo dinamico de servicios"});
+//rutas web
+app.use('/',require('./router/rutasweb'))
+
+app.get('/elem/:id',(req,res)=>{
+    const {id} = req.params;
+
 })
 
 app.listen(port, () => {
